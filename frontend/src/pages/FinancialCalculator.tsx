@@ -1,7 +1,7 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { projectionService, FinancialProjection } from '../services/api'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
-import { Calculator as CalcIcon, Save } from 'lucide-react'
+import { Calculator as CalcIcon, Save, Trash2, TrendingUp } from 'lucide-react'
 
 export default function FinancialCalculator() {
   const [formData, setFormData] = useState<FinancialProjection>({
@@ -19,6 +19,8 @@ export default function FinancialCalculator() {
   })
   const [projectionData, setProjectionData] = useState<any[]>([])
   const [loading, setLoading] = useState(false)
+  const [savedProjections, setSavedProjections] = useState<FinancialProjection[]>([])
+  const [loadingProjections, setLoadingProjections] = useState(false)
 
   const calculate = async () => {
     try {
@@ -49,12 +51,76 @@ export default function FinancialCalculator() {
     }
   }
 
+  useEffect(() => {
+    loadSavedProjections()
+  }, [])
+
+  const loadSavedProjections = async () => {
+    try {
+      setLoadingProjections(true)
+      const projections = await projectionService.getAll()
+      setSavedProjections(projections)
+    } catch (err) {
+      console.error('Erro ao carregar projeções', err)
+    } finally {
+      setLoadingProjections(false)
+    }
+  }
+
   const handleSave = async () => {
     try {
       await projectionService.create(formData)
       alert('Projeção salva com sucesso!')
+      loadSavedProjections()
     } catch (err: any) {
       alert(err.response?.data?.message || 'Erro ao salvar projeção')
+    }
+  }
+
+  const handleLoadProjection = (projection: FinancialProjection) => {
+    setFormData({
+      initialValue: projection.initialValue,
+      monthlyContribution: projection.monthlyContribution,
+      interestRate: projection.interestRate,
+      period: projection.period,
+      futureValue: projection.futureValue || 0,
+    })
+    setDisplayValues({
+      initialValue: projection.initialValue > 0 ? formatCurrencyInput(projection.initialValue.toString()) : '',
+      monthlyContribution: projection.monthlyContribution > 0 ? formatCurrencyInput(projection.monthlyContribution.toString()) : '',
+      interestRate: projection.interestRate > 0 ? formatPercentageInput(projection.interestRate.toString()) : '',
+      period: projection.period.toString(),
+    })
+    
+    // Calcular automaticamente ao carregar
+    if (projection.futureValue) {
+      const data = []
+      let currentValue = projection.initialValue
+      const monthlyRate = projection.interestRate / 100 / 12
+
+      for (let i = 0; i <= projection.period; i++) {
+        data.push({
+          mes: i,
+          valor: currentValue,
+          investido: projection.initialValue + projection.monthlyContribution * i,
+        })
+        if (i < projection.period) {
+          currentValue = currentValue * (1 + monthlyRate) + projection.monthlyContribution
+        }
+      }
+      setProjectionData(data)
+    }
+  }
+
+  const handleDeleteProjection = async (id: number) => {
+    if (!confirm('Tem certeza que deseja excluir esta projeção?')) return
+
+    try {
+      await projectionService.delete(id)
+      loadSavedProjections()
+      alert('Projeção excluída com sucesso!')
+    } catch (err: any) {
+      alert(err.response?.data?.message || 'Erro ao excluir projeção')
     }
   }
 
@@ -354,6 +420,110 @@ export default function FinancialCalculator() {
           </ResponsiveContainer>
         </div>
       )}
+
+      <div className="mt-6 bg-white dark:bg-gray-800 shadow rounded-lg p-6">
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-lg font-medium text-gray-900 dark:text-white">
+            Projeções Salvas
+          </h2>
+          {savedProjections.length > 0 && (
+            <span className="text-sm text-gray-500 dark:text-gray-400">
+              {savedProjections.length} {savedProjections.length === 1 ? 'projeção' : 'projeções'}
+            </span>
+          )}
+        </div>
+
+        {loadingProjections ? (
+          <div className="text-center py-8 text-gray-500 dark:text-gray-400">
+            Carregando projeções...
+          </div>
+        ) : savedProjections.length === 0 ? (
+          <div className="text-center py-8 text-gray-500 dark:text-gray-400">
+            Nenhuma projeção salva ainda. Calcule e salve uma projeção para vê-la aqui.
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {savedProjections.map((projection) => {
+              const totalInvested = projection.initialValue + projection.monthlyContribution * projection.period
+              const totalInterest = (projection.futureValue || 0) - totalInvested
+              
+              return (
+                <div
+                  key={projection.id}
+                  className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 hover:shadow-md transition-shadow cursor-pointer"
+                  onClick={() => handleLoadProjection(projection)}
+                >
+                  <div className="flex justify-between items-start mb-3">
+                    <div className="flex items-center">
+                      <TrendingUp className="h-5 w-5 text-blue-600 dark:text-blue-400 mr-2" />
+                      <h3 className="text-sm font-medium text-gray-900 dark:text-white">
+                        Projeção #{projection.id}
+                      </h3>
+                    </div>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        handleDeleteProjection(projection.id!)
+                      }}
+                      className="text-gray-400 hover:text-red-600 dark:hover:text-red-400"
+                      title="Excluir projeção"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </button>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <div className="flex justify-between text-xs">
+                      <span className="text-gray-500 dark:text-gray-400">Valor Inicial:</span>
+                      <span className="text-gray-900 dark:text-white font-medium">
+                        {formatCurrency(projection.initialValue)}
+                      </span>
+                    </div>
+                    <div className="flex justify-between text-xs">
+                      <span className="text-gray-500 dark:text-gray-400">Aporte Mensal:</span>
+                      <span className="text-gray-900 dark:text-white font-medium">
+                        {formatCurrency(projection.monthlyContribution)}
+                      </span>
+                    </div>
+                    <div className="flex justify-between text-xs">
+                      <span className="text-gray-500 dark:text-gray-400">Taxa de Juros:</span>
+                      <span className="text-gray-900 dark:text-white font-medium">
+                        {projection.interestRate.toFixed(2)}% a.a.
+                      </span>
+                    </div>
+                    <div className="flex justify-between text-xs">
+                      <span className="text-gray-500 dark:text-gray-400">Período:</span>
+                      <span className="text-gray-900 dark:text-white font-medium">
+                        {projection.period} meses
+                      </span>
+                    </div>
+                    <div className="pt-2 mt-2 border-t border-gray-200 dark:border-gray-700">
+                      <div className="flex justify-between items-center">
+                        <span className="text-xs text-gray-500 dark:text-gray-400">Valor Futuro:</span>
+                        <span className="text-sm font-bold text-blue-600 dark:text-blue-400">
+                          {formatCurrency(projection.futureValue || 0)}
+                        </span>
+                      </div>
+                      <div className="flex justify-between items-center mt-1">
+                        <span className="text-xs text-gray-500 dark:text-gray-400">Juros:</span>
+                        <span className="text-xs font-semibold text-green-600 dark:text-green-400">
+                          {formatCurrency(totalInterest)}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="mt-3 pt-3 border-t border-gray-200 dark:border-gray-700">
+                    <p className="text-xs text-gray-400 dark:text-gray-500 text-center">
+                      Clique para carregar
+                    </p>
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        )}
+      </div>
     </div>
   )
 }
