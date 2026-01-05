@@ -6,7 +6,7 @@ Aplicação web completa para controle financeiro pessoal com dashboard, lançam
 
 ### Backend
 - Java 17
-- Spring Boot 3.2.0
+- Spring Boot 3.5.9
 - Spring Security + JWT
 - Spring Data JPA
 - PostgreSQL
