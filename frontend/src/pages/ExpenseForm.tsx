@@ -17,6 +17,62 @@ export default function ExpenseForm() {
     recurring: false,
     observations: '',
   })
+  const [displayAmount, setDisplayAmount] = useState('')
+
+  // Remove formatação e converte para número
+  const parseCurrency = (value: string): number => {
+    if (!value || value.trim() === '') return 0
+    // Remove tudo exceto números, vírgula e ponto
+    let cleaned = value.replace(/[^\d,.-]/g, '')
+    // Remove zeros à esquerda, exceto se for apenas "0," ou "0."
+    if (cleaned.length > 1 && cleaned.startsWith('0') && !cleaned.startsWith('0,') && !cleaned.startsWith('0.')) {
+      cleaned = cleaned.replace(/^0+/, '')
+    }
+    // Substitui vírgula por ponto
+    cleaned = cleaned.replace(',', '.')
+    const num = parseFloat(cleaned) || 0
+    return num
+  }
+
+  // Formata valor monetário para exibição
+  const formatCurrencyInput = (value: string | number): string => {
+    if (typeof value === 'number') {
+      if (value === 0) return ''
+      return new Intl.NumberFormat('pt-BR', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      }).format(value)
+    }
+    
+    if (!value || value.trim() === '') return ''
+    // Remove caracteres não numéricos exceto vírgula e ponto
+    let cleaned = value.replace(/[^\d,.-]/g, '')
+    // Remove zeros à esquerda, exceto se for apenas "0," ou "0."
+    if (cleaned.length > 1 && cleaned.startsWith('0') && !cleaned.startsWith('0,') && !cleaned.startsWith('0.')) {
+      cleaned = cleaned.replace(/^0+/, '')
+    }
+    if (!cleaned || cleaned === '0' || cleaned === '0,00' || cleaned === '0.00') return ''
+    // Converte vírgula para ponto para parsing
+    const num = parseFloat(cleaned.replace(',', '.')) || 0
+    if (num === 0) return ''
+    return new Intl.NumberFormat('pt-BR', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).format(num)
+  }
+
+  const handleAmountChange = (value: string) => {
+    // Permite digitação livre, apenas remove caracteres inválidos
+    let cleaned = value.replace(/[^\d,.-]/g, '')
+    // Remove zeros à esquerda, exceto se for apenas "0," ou "0."
+    if (cleaned.length > 1 && cleaned.startsWith('0') && !cleaned.startsWith('0,') && !cleaned.startsWith('0.')) {
+      cleaned = cleaned.replace(/^0+/, '')
+    }
+    
+    setDisplayAmount(cleaned)
+    const numValue = parseCurrency(cleaned)
+    setFormData({ ...formData, amount: numValue })
+  }
 
   useEffect(() => {
     loadCategories()
@@ -30,7 +86,7 @@ export default function ExpenseForm() {
       const data = await categoryService.getAll()
       setCategories(data)
       if (data.length > 0 && !id) {
-        setFormData({ ...formData, categoryId: data[0].id! })
+        setFormData((prev) => ({ ...prev, categoryId: data[0].id! }))
       }
     } catch (err) {
       console.error('Erro ao carregar categorias', err)
@@ -44,6 +100,12 @@ export default function ExpenseForm() {
         ...expense,
         date: expense.date.split('T')[0],
       })
+      // Formata o valor para exibição
+      if (expense.amount > 0) {
+        setDisplayAmount(formatCurrencyInput(expense.amount))
+      } else {
+        setDisplayAmount('')
+      }
     } catch (err) {
       console.error('Erro ao carregar despesa', err)
     }
@@ -51,6 +113,13 @@ export default function ExpenseForm() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    
+    // Valida se o valor é maior que zero
+    if (formData.amount <= 0) {
+      alert('O valor deve ser maior que zero')
+      return
+    }
+    
     setLoading(true)
 
     try {
@@ -70,15 +139,15 @@ export default function ExpenseForm() {
   return (
     <div className="px-4 py-6 sm:px-0">
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
           {id ? 'Editar Lançamento' : 'Novo Lançamento'}
         </h1>
       </div>
 
-      <form onSubmit={handleSubmit} className="bg-white shadow rounded-lg p-6">
+      <form onSubmit={handleSubmit} className="bg-white dark:bg-gray-800 shadow rounded-lg p-6">
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
           <div>
-            <label className="block text-sm font-medium text-gray-700">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
               Data *
             </label>
             <input
@@ -88,12 +157,12 @@ export default function ExpenseForm() {
               onChange={(e) =>
                 setFormData({ ...formData, date: e.target.value })
               }
-              className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+              className="mt-1 block w-full border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
               Categoria *
             </label>
             <select
@@ -102,7 +171,7 @@ export default function ExpenseForm() {
               onChange={(e) =>
                 setFormData({ ...formData, categoryId: Number(e.target.value) })
               }
-              className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+              className="mt-1 block w-full border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
             >
               <option value="">Selecione...</option>
               {categories.map((cat) => (
@@ -114,7 +183,7 @@ export default function ExpenseForm() {
           </div>
 
           <div className="sm:col-span-2">
-            <label className="block text-sm font-medium text-gray-700">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
               Descrição *
             </label>
             <input
@@ -124,29 +193,30 @@ export default function ExpenseForm() {
               onChange={(e) =>
                 setFormData({ ...formData, description: e.target.value })
               }
-              className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+              className="mt-1 block w-full border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
               Valor *
             </label>
             <input
-              type="number"
-              step="0.01"
-              min="0.01"
+              type="text"
               required
-              value={formData.amount}
-              onChange={(e) =>
-                setFormData({ ...formData, amount: Number(e.target.value) })
-              }
-              className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+              value={displayAmount}
+              onChange={(e) => handleAmountChange(e.target.value)}
+              onBlur={(e) => {
+                const formatted = formatCurrencyInput(e.target.value)
+                setDisplayAmount(formatted)
+              }}
+              placeholder="0,00"
+              className="mt-1 block w-full border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
               Forma de Pagamento
             </label>
             <input
@@ -155,12 +225,12 @@ export default function ExpenseForm() {
               onChange={(e) =>
                 setFormData({ ...formData, paymentMethod: e.target.value })
               }
-              className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+              className="mt-1 block w-full border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
               Código de Barras
             </label>
             <input
@@ -169,7 +239,7 @@ export default function ExpenseForm() {
               onChange={(e) =>
                 setFormData({ ...formData, barcode: e.target.value })
               }
-              className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+              className="mt-1 block w-full border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
             />
           </div>
 
@@ -183,14 +253,14 @@ export default function ExpenseForm() {
                 }
                 className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
               />
-              <span className="ml-2 text-sm text-gray-700">
+              <span className="ml-2 text-sm text-gray-700 dark:text-gray-300">
                 Despesa Recorrente
               </span>
             </label>
           </div>
 
           <div className="sm:col-span-2">
-            <label className="block text-sm font-medium text-gray-700">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
               Observações
             </label>
             <textarea
@@ -199,7 +269,7 @@ export default function ExpenseForm() {
               onChange={(e) =>
                 setFormData({ ...formData, observations: e.target.value })
               }
-              className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+              className="mt-1 block w-full border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
             />
           </div>
         </div>

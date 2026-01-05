@@ -91,7 +91,7 @@ export default function Expenses() {
   return (
     <div className="px-4 py-6 sm:px-0">
       <div className="mb-6 flex justify-between items-center">
-        <h1 className="text-2xl font-bold text-gray-900">Lançamentos</h1>
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Lançamentos</h1>
         <Link
           to="/expenses/new"
           className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700"
@@ -101,10 +101,10 @@ export default function Expenses() {
         </Link>
       </div>
 
-      <div className="bg-white shadow rounded-lg p-6 mb-6">
+      <div className="bg-white dark:bg-gray-800 shadow rounded-lg p-6 mb-6">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
               Data Inicial
             </label>
             <input
@@ -113,11 +113,11 @@ export default function Expenses() {
               onChange={(e) =>
                 setFilters({ ...filters, startDate: e.target.value })
               }
-              className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+              className="mt-1 block w-full border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
               Data Final
             </label>
             <input
@@ -126,11 +126,11 @@ export default function Expenses() {
               onChange={(e) =>
                 setFilters({ ...filters, endDate: e.target.value })
               }
-              className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+              className="mt-1 block w-full border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
               Categoria
             </label>
             <select
@@ -138,7 +138,7 @@ export default function Expenses() {
               onChange={(e) =>
                 setFilters({ ...filters, categoryId: e.target.value })
               }
-              className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+              className="mt-1 block w-full border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
             >
               <option value="">Todas</option>
               {categories.map((cat) => (
@@ -149,7 +149,7 @@ export default function Expenses() {
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
               Valor Mínimo
             </label>
             <input
@@ -159,11 +159,11 @@ export default function Expenses() {
               onChange={(e) =>
                 setFilters({ ...filters, minAmount: e.target.value })
               }
-              className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+              className="mt-1 block w-full border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
               Valor Máximo
             </label>
             <input
@@ -173,11 +173,11 @@ export default function Expenses() {
               onChange={(e) =>
                 setFilters({ ...filters, maxAmount: e.target.value })
               }
-              className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+              className="mt-1 block w-full border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
               Forma de Pagamento
             </label>
             <input
@@ -186,12 +186,12 @@ export default function Expenses() {
               onChange={(e) =>
                 setFilters({ ...filters, paymentMethod: e.target.value })
               }
-              className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+              className="mt-1 block w-full border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
             />
           </div>
         </div>
         <div className="mt-4 flex justify-between items-center">
-          <div className="text-lg font-semibold text-gray-900">
+          <div className="text-lg font-semibold text-gray-900 dark:text-white">
             Total: {formatCurrency(total)}
           </div>
           <button
@@ -205,7 +205,7 @@ export default function Expenses() {
                 paymentMethod: '',
               })
             }
-            className="text-sm text-gray-600 hover:text-gray-900"
+            className="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200"
           >
             Limpar Filtros
           </button>
@@ -213,20 +213,20 @@ export default function Expenses() {
       </div>
 
       {loading ? (
-        <div className="text-center py-8">Carregando...</div>
+        <div className="text-center py-8 text-gray-500 dark:text-gray-400">Carregando...</div>
       ) : expenses.length === 0 ? (
-        <div className="text-center py-8 text-gray-500">
+        <div className="text-center py-8 text-gray-500 dark:text-gray-400">
           Nenhuma despesa encontrada
         </div>
       ) : (
-        <div className="bg-white shadow overflow-hidden sm:rounded-md">
-          <ul className="divide-y divide-gray-200">
+        <div className="bg-white dark:bg-gray-800 shadow overflow-hidden sm:rounded-md">
+          <ul className="divide-y divide-gray-200 dark:divide-gray-700">
             {expenses.map((expense) => (
               <li key={expense.id}>
                 <div className="px-4 py-4 sm:px-6 flex justify-between items-center">
                   <div className="flex-1">
                     <div className="flex items-center justify-between">
-                      <p className="text-sm font-medium text-blue-600 truncate">
+                      <p className="text-sm font-medium text-blue-600 dark:text-blue-400 truncate">
                         {expense.description}
                       </p>
                       <div className="ml-2 flex-shrink-0 flex">
@@ -246,20 +246,20 @@ export default function Expenses() {
                     </div>
                     <div className="mt-2 sm:flex sm:justify-between">
                       <div className="sm:flex">
-                        <p className="flex items-center text-sm text-gray-500">
+                        <p className="flex items-center text-sm text-gray-500 dark:text-gray-400">
                           {format(new Date(expense.date), 'dd/MM/yyyy')}
                         </p>
-                        <p className="mt-2 flex items-center text-sm text-gray-500 sm:mt-0 sm:ml-6">
+                        <p className="mt-2 flex items-center text-sm text-gray-500 dark:text-gray-400 sm:mt-0 sm:ml-6">
                           {getCategoryName(expense.categoryId)}
                         </p>
                         {expense.paymentMethod && (
-                          <p className="mt-2 flex items-center text-sm text-gray-500 sm:mt-0 sm:ml-6">
+                          <p className="mt-2 flex items-center text-sm text-gray-500 dark:text-gray-400 sm:mt-0 sm:ml-6">
                             {expense.paymentMethod}
                           </p>
                         )}
                       </div>
-                      <div className="mt-2 flex items-center text-sm text-gray-500 sm:mt-0">
-                        <p className="text-lg font-semibold text-gray-900">
+                      <div className="mt-2 flex items-center text-sm text-gray-500 dark:text-gray-400 sm:mt-0">
+                        <p className="text-lg font-semibold text-gray-900 dark:text-white">
                           {formatCurrency(expense.amount)}
                         </p>
                       </div>

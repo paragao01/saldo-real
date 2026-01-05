@@ -85,7 +85,7 @@ export default function Categories() {
   return (
     <div className="px-4 py-6 sm:px-0">
       <div className="mb-6 flex justify-between items-center">
-        <h1 className="text-2xl font-bold text-gray-900">Categorias</h1>
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Categorias</h1>
         <button
           onClick={() => {
             setShowForm(true)
@@ -105,14 +105,14 @@ export default function Categories() {
       </div>
 
       {showForm && (
-        <div className="bg-white shadow rounded-lg p-6 mb-6">
-          <h2 className="text-lg font-medium text-gray-900 mb-4">
+        <div className="bg-white dark:bg-gray-800 shadow rounded-lg p-6 mb-6">
+          <h2 className="text-lg font-medium text-gray-900 dark:text-white mb-4">
             {editingCategory ? 'Editar Categoria' : 'Nova Categoria'}
           </h2>
           <form onSubmit={handleSubmit}>
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div>
-                <label className="block text-sm font-medium text-gray-700">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                   Nome *
                 </label>
                 <input
@@ -122,11 +122,11 @@ export default function Categories() {
                   onChange={(e) =>
                     setFormData({ ...formData, name: e.target.value })
                   }
-                  className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                  className="mt-1 block w-full border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                   Limite Mensal
                 </label>
                 <input
@@ -142,11 +142,11 @@ export default function Categories() {
                         : undefined,
                     })
                   }
-                  className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                  className="mt-1 block w-full border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                   Cor
                 </label>
                 <input
@@ -159,7 +159,7 @@ export default function Categories() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                   Ícone
                 </label>
                 <input
@@ -169,7 +169,7 @@ export default function Categories() {
                     setFormData({ ...formData, icon: e.target.value })
                   }
                   placeholder="Nome do ícone (ex: shopping-cart)"
-                  className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                  className="mt-1 block w-full border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
                 />
               </div>
             </div>
@@ -196,14 +196,14 @@ export default function Categories() {
       )}
 
       {loading ? (
-        <div className="text-center py-8">Carregando...</div>
+        <div className="text-center py-8 text-gray-500 dark:text-gray-400">Carregando...</div>
       ) : categories.length === 0 ? (
-        <div className="text-center py-8 text-gray-500">
+        <div className="text-center py-8 text-gray-500 dark:text-gray-400">
           Nenhuma categoria cadastrada
         </div>
       ) : (
-        <div className="bg-white shadow overflow-hidden sm:rounded-md">
-          <ul className="divide-y divide-gray-200">
+        <div className="bg-white dark:bg-gray-800 shadow overflow-hidden sm:rounded-md">
+          <ul className="divide-y divide-gray-200 dark:divide-gray-700">
             {categories.map((category) => (
               <li key={category.id}>
                 <div className="px-4 py-4 sm:px-6 flex justify-between items-center">
@@ -213,10 +213,10 @@ export default function Categories() {
                       style={{ backgroundColor: category.color || '#3B82F6' }}
                     />
                     <div>
-                      <p className="text-sm font-medium text-gray-900">
+                      <p className="text-sm font-medium text-gray-900 dark:text-white">
                         {category.name}
                       </p>
-                      <p className="text-sm text-gray-500">
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
                         Limite: {formatCurrency(category.monthlyLimit)}
                       </p>
                     </div>
