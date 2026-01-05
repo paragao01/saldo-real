@@ -7,8 +7,8 @@ import com.saldoreal.domain.model.User;
 import com.saldoreal.domain.repository.UserRepository;
 import com.saldoreal.security.JwtTokenProvider;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
+//import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+//import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,7 +19,7 @@ public class AuthService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider tokenProvider;
-    private final AuthenticationManager authenticationManager;
+    //private final AuthenticationManager authenticationManager;
     
     public AuthService(UserRepository userRepository, 
                       PasswordEncoder passwordEncoder,
@@ -28,7 +28,7 @@ public class AuthService {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.tokenProvider = tokenProvider;
-        this.authenticationManager = authenticationManager;
+        //this.authenticationManager = authenticationManager;
     }
     
     @Transactional
@@ -50,9 +50,9 @@ public class AuthService {
     }
     
     public AuthResponse login(AuthRequest request) {
-        Authentication authentication = authenticationManager.authenticate(
-            new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
-        );
+        //Authentication authentication = authenticationManager.authenticate(
+        //    new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
+        //);
         
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
